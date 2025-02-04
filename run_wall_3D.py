@@ -21,7 +21,7 @@ class Wall_Func():
         self.i = args.i
         self.restart = 1
         # self.num_scan = 20
-        self.num_scan = 50
+        self.num_scan = 30
 
         self.resol = 0.005
         self.time_window = 50e-9
@@ -163,7 +163,7 @@ Geometry objects read
 
 #geometry_objects_read: {pml + src_to_pml + 0.1:.3f} {0.5:.3f} {self.square_size/2:.3f} ./Input_3D/geometry_processed.h5 Base_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Base 
-#geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Base n
+geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Base n
 
         '''
 
@@ -269,7 +269,7 @@ Geometry objects read
 
 #geometry_objects_read: {pml + src_to_pml + 0.1:.3f} {0.5:.3f} {self.square_size/2:.3f}  ./Input_3D/geometry_processed.h5 Obj_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Object 
-#geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Object n
+geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Object n
 
         '''
 
