@@ -279,15 +279,15 @@ geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2
         try:
             api(self.input, 
                 n=self.num_scan - self.restart + 1, 
-                # gpu=[0], 
+                gpu=[0], 
                 restart=self.restart,
-                geometry_only=True, geometry_fixed=False)
+                geometry_only=False, geometry_fixed=False)
         except Exception as e:
                 api(self.input, 
                 n=self.num_scan - self.restart + 1, 
                 # gpu=[0], 
                 restart=self.restart,
-                geometry_only=True, geometry_fixed=False)
+                geometry_only=False, geometry_fixed=False)
         try:
         
             merge_files(str(self.input.replace('.in','')), True)
