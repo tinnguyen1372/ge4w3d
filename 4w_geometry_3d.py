@@ -7,18 +7,16 @@ import os
 
 def create_geometry_3d(cube_size, air_size, wall_thickness):
     # Initialize the cube with walls
-    geometry = np.zeros((cube_size, cube_size, cube_size), dtype=int)
+    geometry = np.zeros((cube_size, 100, cube_size), dtype=int)
 
     # Set the air region
     air_start = (cube_size - air_size) // 2
     air_end = air_start + air_size
     geometry[
         air_start + wall_thickness:air_end - wall_thickness,
-        air_start + wall_thickness:air_end - wall_thickness,
+        air_start + wall_thickness:100 - wall_thickness,
         air_start + wall_thickness:air_end - wall_thickness
     ] = 1  # Air is represented by 1
-
-    
 
     return geometry, air_start, air_end
 
@@ -30,30 +28,28 @@ def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness):
     objwall_gap = 25  # Gap between object and wall
 
     # Calculate the center of the geometry
-    center_z = (air_start + air_end) // 2
-
+    # center_z = (air_start + air_end) // 2
+    center_y = int(geometry.shape[1] * 0.5)  # Convert 0.5 to an integer index
+    
     # Adjust start positions to be closer to the center
     x_start = random.randint(
         air_start + wall_thickness + objwall_gap, 
-        air_end - size_h - cube_size//4
-    )
-    y_start = random.randint(
-        air_start + int(6*cube_size/22), 
-        air_end - size_w - int(6*cube_size/22)
+        air_end - size_w - cube_size//4
     )
     z_start = random.randint(
-        max(center_z - size_d, air_start + wall_thickness + objwall_gap),
-        min(center_z + size_d, air_end - size_d - objwall_gap)
+        air_start + int(6*cube_size/22), 
+        air_end - size_h - int(6*cube_size/22)
     )
+
 
     shape = random.choice(["cube", "sphere", "triangle_cube", "rectangle_cube"])
 
     if shape == "cube":
-        geometry[x_start:x_start + size_w, y_start:y_start + size_w, z_start:z_start + size_w] = int(i) + 2
+        geometry[x_start:x_start + size_w, center_y - size_w//2 : center_y + size_w//2, z_start:z_start + size_w] = int(i) + 2
 
     elif shape == "sphere":
         radius = size_w // 2
-        x_center, y_center, z_center = x_start + radius, y_start + radius, z_start + radius
+        x_center, y_center, z_center = x_start + radius, center_y, z_start + radius
         for x in range(-radius, radius):
             for y in range(-radius, radius):
                 for z in range(-radius, radius):
@@ -64,10 +60,10 @@ def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness):
         for x in range(size_w):
             for y in range(size_w - x):  # Triangle shape in 2D
                 for z in range(size_w - x):
-                    geometry[x_start + x, y_start + y, z_start + z] = int(i) + 2
+                    geometry[x_start + x, center_y + y, z_start + z] = int(i) + 2
 
     elif shape == "rectangle_cube":
-        geometry[x_start:x_start + size_w, y_start:y_start + size_h, z_start:z_start + size_d] = int(i) + 2
+        geometry[x_start:x_start + size_w, center_y - size_h//2:center_y + size_h//2, z_start:z_start + size_d] = int(i) + 2
 
     return permittivity_object, shape, geometry
 
@@ -142,29 +138,13 @@ def save_geometry_to_h5(filename, geometry, **metadata):
             else:
                 h5file.attrs[key] = value
 
-if __name__ == '__main__':
-    # Base permittivity values for wall materials
-    wall_materials = {
-        "Concrete": 5.24,
-        "Brick": 3.91,
-        "Plasterboard": 2.73,
-        "Wood": 1.99,
-        "Glass": 6.31,
-    }
-    variance_factor = 0.1  # Adjust this to 0.2 for higher variability
-
-    wall_material = random.choice(list(wall_materials.keys()))
-    base_permittivity = wall_materials[wall_material]
-    variance = base_permittivity * variance_factor
-    permittivity_wall = round(random.uniform(base_permittivity -variance, base_permittivity +variance), 2)    
-
+if __name__ == '__main__':    
     # Predefined colors
     wall_color = [1, 1, 0]   # Wall color
     air_color = [1, 1, 1]    # Air color
     f_color = [1, 0, 0]      # First shape color
     s_color = [0, 1, 0]      # Second shape color
     t_color = [0, 0, 1]      # Third shape color
-
     # Argument parsing
     parser = argparse.ArgumentParser(description='Generate and visualize 3D geometries with random shapes.')
     parser.add_argument('--start', type=int, default=0, help='Starting index for geometry generation')
@@ -173,14 +153,37 @@ if __name__ == '__main__':
 
     args.n = args.end + 1 - args.start
 
+    if not os.path.exists('./Geometry_3D/Object'):
+        os.makedirs('./Geometry_3D/Object')
+    if not os.path.exists('./Geometry_3D/Base'):
+        os.makedirs('./Geometry_3D/Base')
+
     for i in range(args.n):
         cube_size = 200
         wall_thickness = random.randint(15, 30)
 
-        if not os.path.exists('./Geometry_3D/Object'):
-            os.makedirs('./Geometry_3D/Object')
-        if not os.path.exists('./Geometry_3D/Base'):
-            os.makedirs('./Geometry_3D/Base')
+        # Define wall materials with permittivity and conductivity
+        wall_materials = {
+            "Concrete": {"permittivity": 5.24, "conductivity": 0.001},
+            "Brick": {"permittivity": 3.91, "conductivity": 0.002},
+            "Plasterboard": {"permittivity": 2.73, "conductivity": 0.0005},
+            "Wood": {"permittivity": 1.99, "conductivity": 0.0002},
+            "Glass": {"permittivity": 6.31, "conductivity": 0.00001},
+        }
+
+        # Variance factor for permittivity
+        variance_factor = 0.1
+
+        # Randomly select a wall material
+        wall_material = random.choice(list(wall_materials.keys()))
+
+        # Get the base permittivity and conductivity
+        base_permittivity = wall_materials[wall_material]["permittivity"]
+        conductivity = wall_materials[wall_material]["conductivity"]
+
+        # Add variability to permittivity
+        variance = base_permittivity * variance_factor
+        permittivity_wall = round(random.uniform(base_permittivity - variance, base_permittivity + variance), 2)
 
         filename = f'./Geometry_3D/Object/geometry{i + args.start}.png'
         basename = f'./Geometry_3D/Base/base{i + args.start}.png'
@@ -189,6 +192,7 @@ if __name__ == '__main__':
         h5_basename = f'./Geometry_3D/Base/base_{i + args.start}.h5'
         geometry, air_start, air_end = create_geometry_3d(cube_size, cube_size, wall_thickness)
         save_top_view(basename, geometry, cube_size, wall_color = wall_color, air_color = air_color)
+        
         # Save geometry to HDF5
         save_geometry_to_h5(
             h5_basename,
@@ -201,7 +205,7 @@ if __name__ == '__main__':
         )
         per_obj_arr = []
         shape_arr = []
-        num_objects = random.randint(1, 3)
+        num_objects = random.randint(1, 1)
         for j in range(num_objects):
             per_obj, shape, geometry = add_random_shape_3d(j, geometry, air_start, air_end, wall_thickness)
             per_obj_arr.append(per_obj)
@@ -227,7 +231,8 @@ if __name__ == '__main__':
             air_color=air_color,
             object_color=[f_color, s_color, t_color],
             permittivity_object=per_obj_arr,
-            permittivity_wall=permittivity_wall
+            permittivity_wall=permittivity_wall,
+            conductivity_wall=conductivity,
         )
 
         # Save geometry to HDF5
@@ -241,5 +246,6 @@ if __name__ == '__main__':
             air_color=air_color,
             object_color=[f_color, s_color, t_color],
             permittivity_object=per_obj_arr,            
-            permittivity_wall=permittivity_wall
+            permittivity_wall=permittivity_wall,
+            conductivity_wall=conductivity,
         )
