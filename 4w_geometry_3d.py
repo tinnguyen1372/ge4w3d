@@ -22,23 +22,23 @@ def create_geometry_3d(cube_size, air_size, wall_thickness):
 
 def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness):
     permittivity_object = random.uniform(4, 40.0)
-    size_w = random.randint(15, 30)
-    size_h = random.randint(15, 30)
-    size_d = random.randint(15, 30)  # Depth for rectangular shapes
-    objwall_gap = 25  # Gap between object and wall
+    size_w = random.randint(20, 40)
+    size_h = random.randint(20, 40)
+    size_d = random.randint(20, 40)  # Depth for rectangular shapes
+    objwall_gap = 15  # Gap between object and wall
 
     # Calculate the center of the geometry
     # center_z = (air_start + air_end) // 2
     center_y = int(geometry.shape[1] * 0.5)  # Convert 0.5 to an integer index
-    
+
     # Adjust start positions to be closer to the center
     x_start = random.randint(
         air_start + wall_thickness + objwall_gap, 
         air_end - size_w - cube_size//4
     )
     z_start = random.randint(
-        air_start + int(6*cube_size/22), 
-        air_end - size_h - int(6*cube_size/22)
+        air_start + int(7*cube_size/22), 
+        air_end - size_h - int(7*cube_size/22)
     )
 
 
@@ -88,7 +88,7 @@ def visualize_top_view(geometry, **kwargs):
     plt.show()
 
 def save_top_view(filename, geometry, cube_size, **kwargs):
-    top_view = geometry.max(axis=2)  # Maximum projection along z-axis
+    top_view = geometry.max(axis=1)  # Maximum projection along z-axis
     cmap = ListedColormap([
         color for color in [
             kwargs.get('wall_color'), 
@@ -160,7 +160,7 @@ if __name__ == '__main__':
 
     for i in range(args.n):
         cube_size = 200
-        wall_thickness = random.randint(15, 30)
+        wall_thickness = random.randint(15, 25)
 
         # Define wall materials with permittivity and conductivity
         wall_materials = {

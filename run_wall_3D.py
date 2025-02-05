@@ -34,7 +34,7 @@ class Wall_Func():
         # self.object_width = args.obj_width
         # self.object_height = args.obj_height
         self.src_to_wall = 0.10
-        self.src_to_rx = 0.03
+        self.src_to_rx = 0.05
         # Geometry load
         self.base = os.getcwd() + '/Geometry_3D/Base'
         self.basefile = self.base + '/base_{}.h5'.format(i)
