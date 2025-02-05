@@ -24,7 +24,7 @@ class Wall_Func():
         self.num_scan = 30
 
         self.resol = 0.005
-        self.time_window = 50e-9
+        self.time_window = 30e-9
         self.square_size = args.square_size
         self.wall_thickness = args.wall_thickness
         # self.wall_height = args.wall_height
@@ -33,7 +33,7 @@ class Wall_Func():
             
         # self.object_width = args.obj_width
         # self.object_height = args.obj_height
-        self.src_to_wall = 0.05
+        self.src_to_wall = 0.10
         self.src_to_rx = 0.03
         # Geometry load
         self.base = os.getcwd() + '/Geometry_3D/Base'
@@ -115,13 +115,11 @@ class Wall_Func():
         pml = self.resol * pml_cells
         src_to_pml = 0.04
 
-        sharp_domain = self.square_size + 2* self.src_to_rx, self.square_size + 2* self.src_to_rx,self.square_size + 2* self.src_to_rx
+        sharp_domain =  self.square_size, 1, self.square_size
         domain_2d = [
-            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.15), 
-            float(sharp_domain[2] + 2 * pml + src_to_pml), 
-            # 1.5 + 2*pml,
-            # 1+ 2*pml,
-            float(sharp_domain[1] + 2 * pml + src_to_pml + 0.15), 
+            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.2), 
+            float(sharp_domain[1] + 2 * pml + 0.2), 
+            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.2), 
         ]
 
         # Preprocess geometry
@@ -135,8 +133,12 @@ class Wall_Func():
         except Exception as e:
             print(e)
 
-        src_position = [pml + src_to_pml + 0.2, 1.2,  self.square_size/2 - self.src_to_wall]
-        rx_position = [pml + src_to_pml + 0.2 + self.src_to_rx, 1.2, self.square_size/2 - self.src_to_wall]        
+        src_position = [pml + src_to_pml + 0.2, 
+                        0.5 + 0.1,  
+                        pml + src_to_pml + 0.1]
+        rx_position = [pml + src_to_pml + 0.2 + self.src_to_rx, 
+                       0.5 + 0.1, 
+                       pml + src_to_pml + 0.1]        
         
         src_steps = [(self.square_size-0.2)/ self.num_scan, 0, 0]
 #         # print(src_steps)
@@ -161,7 +163,7 @@ Source - Receiver - Waveform
 
 Geometry objects read
 
-#geometry_objects_read: {pml + src_to_pml + 0.1:.3f} {0.5:.3f} {self.square_size/2:.3f} ./Input_3D/geometry_processed.h5 Base_materials.txt
+#geometry_objects_read: {pml + src_to_pml + 0.1:.3f} {pml + 0.1:.3f} {pml+ src_to_pml + 0.2:.3f} ./Input_3D/geometry_processed.h5 Base_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Base 
 geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Base n
 
@@ -222,13 +224,11 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         pml = self.resol * pml_cells
         src_to_pml = 0.04
 
-        sharp_domain = self.square_size + 2* self.src_to_rx, self.square_size + 2* self.src_to_rx,self.square_size + 2* self.src_to_rx
+        sharp_domain =  self.square_size, 1, self.square_size
         domain_2d = [
-            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.15), 
-            float(sharp_domain[2] + 2 * pml + src_to_pml), 
-            # 1.5 + 2*pml,
-            # 1 + 2*pml,
-            float(sharp_domain[1] + 2 * pml + src_to_pml + 0.15), 
+            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.2), 
+            float(sharp_domain[1] + 2 * pml + 0.2), 
+            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.2), 
         ]
 
         # Preprocess geometrys
@@ -242,8 +242,12 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         except Exception as e:
             print(e)
 
-        src_position = [pml + src_to_pml + 0.2, 1.2,  self.square_size/2 - self.src_to_wall]
-        rx_position = [pml + src_to_pml + 0.2 + self.src_to_rx, 1.2, self.square_size/2 - self.src_to_wall]        
+        src_position = [pml + src_to_pml + 0.2, 
+                        0.5 + 0.1,  
+                        pml + src_to_pml + 0.1]
+        rx_position = [pml + src_to_pml + 0.2 + self.src_to_rx, 
+                       0.5 + 0.1, 
+                       pml + src_to_pml + 0.1]        
         
         src_steps = [(self.square_size-0.2)/ self.num_scan, 0, 0]
         config = f'''
@@ -267,7 +271,7 @@ Source - Receiver - Waveform
 
 Geometry objects read
 
-#geometry_objects_read: {pml + src_to_pml + 0.1:.3f} {0.5:.3f} {self.square_size/2:.3f}  ./Input_3D/geometry_processed.h5 Obj_materials.txt
+#geometry_objects_read: {pml + src_to_pml + 0.1:.3f} {pml + 0.1:.3f} {pml+ src_to_pml + 0.2:.3f}  ./Input_3D/geometry_processed.h5 Obj_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Object 
 geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Object n
 
@@ -300,8 +304,8 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
                 dt = f1.attrs['dt']
                 f1.close()
 
-            with h5py.File(f'./Output_3D/Base/Base{self.i}.out', 'r') as f1:
-                data_source = f1['rxs']['rx1']['Ey'][()]
+            # with h5py.File(f'./Output_3D/Base/Base{self.i}.out', 'r') as f1:
+            #     data_source = f1['rxs']['rx1']['Ey'][()]
 
             with h5py.File(uncleaned_output_file, 'w') as f_out:
                 f_out.attrs['dt'] = dt  # Set the time step attribute
@@ -319,29 +323,29 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
             fig.tight_layout(pad=0)  # Remove any extra padding
             plt.savefig(f'./WallObj_3D/Wall_Obj{self.i}' + ".png")
 
-            data1 = np.subtract(data1, data_source)
+            # data1 = np.subtract(data1, data_source)
 
-            with h5py.File(output_file, 'w') as f_out:
-                f_out.attrs['dt'] = dt  # Set the time step attribute
-                f_out.create_dataset('rxs/rx1/Ey', data=data1)
+            # with h5py.File(output_file, 'w') as f_out:
+            #     f_out.attrs['dt'] = dt  # Set the time step attribute
+            #     f_out.create_dataset('rxs/rx1/Ey', data=data1)
 
-            # Draw data with normal plot
-            rxnumber = 1
-            rxcomponent = 'Ey'
-            plt = mpl_plot_Bscan("merged_output_data", data1, dt, rxnumber,rxcomponent)
+            # # Draw data with normal plot
+            # rxnumber = 1
+            # rxcomponent = 'Ey'
+            # plt = mpl_plot_Bscan("merged_output_data", data1, dt, rxnumber,rxcomponent)
             
-            fig_width = 15
-            fig_height = 15
+            # fig_width = 15
+            # fig_height = 15
 
-            fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+            # fig, ax = plt.subplots(figsize=(fig_width, fig_height))
 
-            plt.imshow(data1, cmap='gray', aspect='auto')
-            plt.axis('off')
-            ax.margins(0, 0)  # Remove any extra margins or padding
-            fig.tight_layout(pad=0)  # Remove any extra padding
+            # plt.imshow(data1, cmap='gray', aspect='auto')
+            # plt.axis('off')
+            # ax.margins(0, 0)  # Remove any extra margins or padding
+            # fig.tight_layout(pad=0)  # Remove any extra padding
 
-            os.rename(output_file, f'./Output_3D/Object/Obj{self.i}.out')
-            plt.savefig(f'./ObjImg_3D/Obj{self.i}' + ".png")
+            # os.rename(output_file, f'./Output_3D/Object/Obj{self.i}.out')
+            # plt.savefig(f'./ObjImg_3D/Obj{self.i}' + ".png")
         except Exception as e:
             print(e)
 
