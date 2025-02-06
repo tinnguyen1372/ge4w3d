@@ -7,66 +7,86 @@ import os
 
 def create_geometry_3d(cube_size, air_size, wall_thickness):
     # Initialize the cube with walls
-    geometry = np.zeros((cube_size, 100, cube_size), dtype=int)
+    geometry = np.zeros((cube_size, cube_size,100), dtype=int)
 
     # Set the air region
     air_start = (cube_size - air_size) // 2
     air_end = air_start + air_size
     geometry[
         air_start + wall_thickness:air_end - wall_thickness,
+        air_start + wall_thickness:air_end - wall_thickness,
         air_start + wall_thickness:100 - wall_thickness,
-        air_start + wall_thickness:air_end - wall_thickness
     ] = 1  # Air is represented by 1
 
     return geometry, air_start, air_end
 
-def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness):
+import numpy as np
+import random
+
+def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness, cube_size=200):
     permittivity_object = random.uniform(4, 40.0)
     size_w = random.randint(20, 40)
     size_h = random.randint(20, 40)
     size_d = random.randint(20, 40)  # Depth for rectangular shapes
     objwall_gap = 15  # Gap between object and wall
 
+    # Get geometry shape limits
+    x_max, y_max, z_max = geometry.shape
+
     # Calculate the center of the geometry
-    # center_z = (air_start + air_end) // 2
-    center_y = int(geometry.shape[1] * 0.5)  # Convert 0.5 to an integer index
+    center_z = int(z_max * 0.5)  # Middle along z-axis
 
-    # Adjust start positions to be closer to the center
+    # Adjust start positions to be closer to the center while avoiding out-of-bounds errors
     x_start = random.randint(
-        air_start + wall_thickness + objwall_gap, 
-        air_end - size_w - cube_size//4
+        max(air_start + wall_thickness + objwall_gap, 0), 
+        min(air_end - size_w - cube_size // 4, x_max - size_w)
     )
-    z_start = random.randint(
-        air_start + int(7*cube_size/22), 
-        air_end - size_h - int(7*cube_size/22)
+    y_start = random.randint(
+        max(air_start + int(7*cube_size/22), 0), 
+        min(air_end - size_h - int(7*cube_size/22), y_max - size_h)
     )
-
 
     shape = random.choice(["cube", "sphere", "triangle_cube", "rectangle_cube"])
 
     if shape == "cube":
-        geometry[x_start:x_start + size_w, center_y - size_w//2 : center_y + size_w//2, z_start:z_start + size_w] = int(i) + 2
+        # Ensure indices stay in bounds
+        x_end = min(x_start + size_w, x_max)
+        y_end = min(y_start + size_w, y_max)
+        z_start = max(center_z - size_w//2, 0)
+        z_end = min(center_z + size_w//2, z_max)
+
+        geometry[x_start:x_end, y_start:y_end, z_start:z_end] = int(i) + 2
 
     elif shape == "sphere":
         radius = size_w // 2
-        x_center, y_center, z_center = x_start + radius, center_y, z_start + radius
+        x_center, y_center, z_center = x_start + radius, y_start + radius, center_z
+
         for x in range(-radius, radius):
             for y in range(-radius, radius):
                 for z in range(-radius, radius):
                     if x**2 + y**2 + z**2 <= radius**2:
-                        geometry[x_center + x, y_center + y, z_center + z] = int(i) + 2
+                        xi, yi, zi = x_center + x, y_center + y, z_center + z
+                        if 0 <= xi < x_max and 0 <= yi < y_max and 0 <= zi < z_max:
+                            geometry[xi, yi, zi] = int(i) + 2
 
     elif shape == "triangle_cube":
         for x in range(size_w):
-            for y in range(size_w - x):  # Triangle shape in 2D
+            for y in range(size_w - x):  # Sloped triangular shape
                 for z in range(size_w - x):
-                    geometry[x_start + x, center_y + y, z_start + z] = int(i) + 2
+                    xi, yi, zi = x_start + x, y_start + y, center_z + z
+                    if 0 <= xi < x_max and 0 <= yi < y_max and 0 <= zi < z_max:
+                        geometry[xi, yi, zi] = int(i) + 2
 
     elif shape == "rectangle_cube":
-        geometry[x_start:x_start + size_w, center_y - size_h//2:center_y + size_h//2, z_start:z_start + size_d] = int(i) + 2
+        # Ensure indices stay in bounds
+        x_end = min(x_start + size_w, x_max)
+        y_start_adj = max(y_start - size_h // 2, 0)
+        y_end = min(y_start + size_h // 2, y_max)
+        z_end = min(center_z + size_d, z_max)
+
+        geometry[x_start:x_end, y_start_adj:y_end, center_z:z_end] = int(i) + 2
 
     return permittivity_object, shape, geometry
-
 
 
 # def visualize_top_view(geometry, wall_color, air_color, f_color, s_color, t_color):
@@ -88,7 +108,7 @@ def visualize_top_view(geometry, **kwargs):
     plt.show()
 
 def save_top_view(filename, geometry, cube_size, **kwargs):
-    top_view = geometry.max(axis=1)  # Maximum projection along z-axis
+    top_view = geometry.max(axis=2)  # Maximum projection along z-axis
     cmap = ListedColormap([
         color for color in [
             kwargs.get('wall_color'), 
