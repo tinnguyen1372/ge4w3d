@@ -21,10 +21,10 @@ class Wall_Func():
         self.i = args.i
         self.restart = 1
         # self.num_scan = 20
-        self.num_scan = 30
+        self.num_scan = 50
 
         self.resol = 0.005
-        self.time_window = 30e-9
+        self.time_window = 50e-9
         self.square_size = args.square_size
         self.wall_thickness = args.wall_thickness
         # self.wall_height = args.wall_height
@@ -115,7 +115,7 @@ class Wall_Func():
         pml = self.resol * pml_cells
         src_to_pml = 0.04
 
-        sharp_domain =  self.square_size, 1, self.square_size
+        sharp_domain =  self.square_size, 1, 1
         domain_2d = [
             float(sharp_domain[0] + 2 * pml + src_to_pml + 0.2), 
             float(sharp_domain[1] + 2 * pml + 0.2), 
@@ -224,7 +224,7 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         pml = self.resol * pml_cells
         src_to_pml = 0.04
 
-        sharp_domain =  self.square_size, 1, self.square_size
+        sharp_domain =  self.square_size, 1, 1
         domain_2d = [
             float(sharp_domain[0] + 2 * pml + src_to_pml + 0.2), 
             float(sharp_domain[1] + 2 * pml + 0.2), 
@@ -356,7 +356,7 @@ if __name__ == "__main__":
     parser.add_argument('--end', type=int, default=5, help='End of the generated geometry')
     # data = np.load('SL_Obj3Dall_0_699.npz', allow_pickle=True)
     # data = np.load('SL_Obj3Dall_700_1500.npz', allow_pickle=True)
-    data = np.load('./Geometry_3D/params_0_3.npz', allow_pickle=True)
+    data = np.load('./Geometry_3D/params_0_1000.npz', allow_pickle=True)
     args = parser.parse_args()
     data_index = 0
     for i in range(args.start, args.end - args.start):
