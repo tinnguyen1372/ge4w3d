@@ -121,7 +121,7 @@ def save_top_view(filename, geometry, cube_size, **kwargs):
         ] if color is not None
     ])
     plt.figure(figsize=(10, 10))
-    plt.imshow(top_view, cmap=cmap)
+    plt.imshow(top_view, cmap=cmap, origin='lower')
     plt.axis('off')
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
     plt.savefig(filename, format='png', dpi=cube_size / 10, bbox_inches='tight', pad_inches=0)
