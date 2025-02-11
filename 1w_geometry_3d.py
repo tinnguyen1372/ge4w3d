@@ -7,15 +7,16 @@ import os
 
 def create_geometry_3d(cube_size, air_size, wall_thickness):
     # Initialize the cube with walls
-    geometry = np.zeros((100,cube_size,100), dtype=int)
+    geometry = np.zeros((cube_size,100,100), dtype=int)
 
     # Set the air region
     air_start = (cube_size - air_size) // 2
     air_end = air_start + air_size
+# Set the air region inside the cube
     geometry[
-        air_start+wall_thickness:100,
-        air_start :air_end,
-        air_start:100,
+        air_start : 200,
+        air_start : 100,
+        air_start + wall_thickness : 100
     ] = 1  # Air is represented by 1
 
     return geometry, air_start, air_end
@@ -37,15 +38,12 @@ def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness, cube_si
     center_z = z_max // 2  # Middle along z-axis
 
     # Adjust start positions to be closer to the center while avoiding out-of-bounds errors
-    x_start = random.randint(
+    y_start = random.randint(
         wall_thickness + objwall_gap + size_w // 2,
-        wall_thickness + objwall_gap - size_w //2 + x_max//2 - 5,
+        wall_thickness + objwall_gap - size_w //2 + y_max//2 - 5,
     )
     
-    y_start = random.randint(
-        max(y_max // 4 + objwall_gap, 0),
-        min(3 * y_max // 4 - objwall_gap - size_h, y_max - size_h)
-    )
+    x_start = random.randint(air_start + objwall_gap + size_w//2 + x_max//4, 3*x_max//4 - objwall_gap - size_w//2)
 
     print(f"x_start: {x_start}, y_start: {y_start}, center_z: {center_z}")
 
@@ -130,6 +128,8 @@ def save_top_view(filename, geometry, cube_size, **kwargs):
     # Generate the top view by taking the maximum projection along the z-axis
     top_view = square.max(axis=2)
 
+    top_view = np.rot90(top_view, k=1, axes=(1, 0))  # Rotate 90 degrees to match the visualization
+
     plt.figure(figsize=(10, 10))
     plt.imshow(top_view, cmap=cmap, origin='lower')
     plt.axis('off')
@@ -173,7 +173,9 @@ def save_geometry_to_h5(filename, geometry, **metadata):
         metadata (dict): Additional metadata to store in the HDF5 file.
     """
     with h5py.File(filename, 'w') as h5file:
-        geometry = np.rot90(geometry, k=-1, axes=(1, 0))  # Rotate 90 degrees to match the visualization
+        # print(geometry.shape)
+        geometry = np.swapaxes(geometry, 1, 2)  # Swap y and z axis
+        # print(geometry.shape)
         # Save geometry data
         h5file.create_dataset('data', data=geometry, compression="gzip")
 

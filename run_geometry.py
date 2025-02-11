@@ -356,7 +356,7 @@ if __name__ == "__main__":
     parser.add_argument('--end', type=int, default=5, help='End of the generated geometry')
     # data = np.load('SL_Obj3Dall_0_699.npz', allow_pickle=True)
     # data = np.load('SL_Obj3Dall_700_1500.npz', allow_pickle=True)
-    data = np.load('./Geometry_3D/params_0_1.npz', allow_pickle=True)
+    data = np.load('./Geometry_3D/params_0_0.npz', allow_pickle=True)
     args = parser.parse_args()
     data_index = 0
     for i in range(args.start, args.end - args.start):
