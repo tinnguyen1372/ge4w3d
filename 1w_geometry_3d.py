@@ -13,9 +13,9 @@ def create_geometry_3d(cube_size, air_size, wall_thickness):
     air_start = (cube_size - air_size) // 2
     air_end = air_start + air_size
     geometry[
-        air_start + wall_thickness:100,
+        air_start+wall_thickness:100,
         air_start :air_end,
-        air_start + wall_thickness:100,
+        air_start:100,
     ] = 1  # Air is represented by 1
 
     return geometry, air_start, air_end
@@ -93,7 +93,7 @@ def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness, cube_si
 
 # def visualize_top_view(geometry, wall_color, air_color, f_color, s_color, t_color):
 def visualize_top_view(geometry, **kwargs):
-    top_view = geometry.max(axis=2)  # Maximum projection along z-axis
+    top_view = geometry.max(axis=1)  # Maximum projection along z-axis
     cmap = ListedColormap([
         color for color in [
             kwargs.get('wall_color'), 
@@ -104,7 +104,7 @@ def visualize_top_view(geometry, **kwargs):
         ] if color is not None
     ])
     plt.figure(figsize=(10, 10))
-    plt.imshow(top_view, cmap=cmap, origin='lower')
+    plt.imshow(top_view, cmap=cmap,origin='lower')
     plt.title('Top View of 3D Geometry')
     plt.axis('off')
     plt.show()
@@ -121,7 +121,7 @@ def save_top_view(filename, geometry, cube_size, **kwargs):
         ] if color is not None
     ])
     plt.figure(figsize=(10, 10))
-    plt.imshow(top_view, cmap=cmap, origin='lower')
+    plt.imshow(top_view, cmap=cmap)
     plt.axis('off')
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
     plt.savefig(filename, format='png', dpi=cube_size / 10, bbox_inches='tight', pad_inches=0)
@@ -139,6 +139,19 @@ def save_parameters(filename, **params):
     with open(filename, 'wb') as f:
         np.savez(f, params=all_params)
 import h5py
+import numpy as np
+
+def rotate_3d_array_z_plus_90(array):
+    """
+    Rotates a 3D array 90 degrees counterclockwise around the Z+ axis.
+    
+    Args:
+        array (numpy.ndarray): The input 3D array of shape (X, Y, Z).
+    
+    Returns:
+        numpy.ndarray: The rotated 3D array.
+    """
+    return np.flip(array.transpose(1, 0, 2), axis=0)
 
 def save_geometry_to_h5(filename, geometry, **metadata):
     """
@@ -150,6 +163,7 @@ def save_geometry_to_h5(filename, geometry, **metadata):
         metadata (dict): Additional metadata to store in the HDF5 file.
     """
     with h5py.File(filename, 'w') as h5file:
+        geometry = np.rot90(geometry, k=-1, axes=(1, 0))  # Rotate 90 degrees to match the visualization
         # Save geometry data
         h5file.create_dataset('data', data=geometry, compression="gzip")
 
@@ -232,6 +246,7 @@ if __name__ == '__main__':
             per_obj, shape, geometry = add_random_shape_3d(j, geometry, air_start, air_end, wall_thickness)
             per_obj_arr.append(per_obj)
             shape_arr.append(shape)
+
 
         save_top_view(
             filename, 
