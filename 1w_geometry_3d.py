@@ -110,7 +110,7 @@ def visualize_top_view(geometry, **kwargs):
     plt.show()
 
 def save_top_view(filename, geometry, cube_size, **kwargs):
-    top_view = geometry.max(axis=2)  # Maximum projection along z-axis
+    # top_view = geometry.max(axis=2)  # Maximum projection along z-axis
     cmap = ListedColormap([
         color for color in [
             kwargs.get('wall_color'), 
@@ -120,6 +120,16 @@ def save_top_view(filename, geometry, cube_size, **kwargs):
             kwargs.get('t_color')
         ] if color is not None
     ])
+    # Create a 3D square array (cube) with ones
+    square_size = max(geometry.shape)
+    square = np.ones((square_size, square_size, geometry.shape[2]), dtype=int)
+
+    # Insert geometry into the square (assuming it fits within the square)
+    square[:geometry.shape[0], :geometry.shape[1], :geometry.shape[2]] = geometry
+
+    # Generate the top view by taking the maximum projection along the z-axis
+    top_view = square.max(axis=2)
+
     plt.figure(figsize=(10, 10))
     plt.imshow(top_view, cmap=cmap, origin='lower')
     plt.axis('off')
