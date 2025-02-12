@@ -15,8 +15,8 @@ def create_geometry_3d(cube_size, air_size, wall_thickness):
 # Set the air region inside the cube
     geometry[
         air_start : 200,
-        air_start : 100,
-        air_start + wall_thickness : 100
+        air_start + wall_thickness : 100,
+        air_start : 100
     ] = 1  # Air is represented by 1
 
     return geometry, air_start, air_end
