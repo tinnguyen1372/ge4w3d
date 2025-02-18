@@ -13,7 +13,7 @@ import argparse
 import random
 import os
 
-
+from scipy.ndimage import zoom
 
 class Wall_Func():
     def __init__(self, args) -> None:
@@ -24,7 +24,7 @@ class Wall_Func():
         self.num_scan = 50
 
         self.resol = 0.005
-        self.time_window = 50e-9
+        self.time_window = 40e-9
         self.square_size = args.square_size
         self.wall_thickness = args.wall_thickness
         # self.wall_height = args.wall_height
@@ -101,12 +101,18 @@ class Wall_Func():
             data = f['data'][:]
         # Apply the transformation
         data = np.where(data == 1, -1, np.where(data == 0, 0, data - 1))
+        # Scale the dataset to the new resolution
+        # Resize geometry using interpolation
+        scale_factor = 0.01 / 0.005  # If original resolution is 1
+        # print(data.shape)
+        data = zoom(data, (scale_factor, scale_factor, scale_factor), order=0)
+        # print(data.shape)
         geoname = "./Input_3D/geometry_processed.h5"
         # Save the transformed data back to the file
         with h5py.File(geoname, 'w') as f:
             f.create_dataset('data', data=data)
             f.attrs['dx_dy_dz'] = (0.005, 0.005, 0.005)
-
+            f.close()
     def run_base(self):
 
         # Run gprMax
@@ -356,7 +362,7 @@ if __name__ == "__main__":
     parser.add_argument('--end', type=int, default=5, help='End of the generated geometry')
     # data = np.load('SL_Obj3Dall_0_699.npz', allow_pickle=True)
     # data = np.load('SL_Obj3Dall_700_1500.npz', allow_pickle=True)
-    data = np.load('./Geometry_3D/params_0_10.npz', allow_pickle=True)
+    data = np.load('./Geometry_3D/params_0_20.npz', allow_pickle=True)
     args = parser.parse_args()
     data_index = 0
     for i in range(args.start, args.end - args.start):
