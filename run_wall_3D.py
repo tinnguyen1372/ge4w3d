@@ -29,6 +29,7 @@ class Wall_Func():
         self.wall_thickness = args.wall_thickness
         # self.wall_height = args.wall_height
         self.wall_permittivity = args.wall_permittivity
+        self.wall_conductivity = args.wall_conductivity
         self.object_permittivity = args.object_permittivity
             
         # self.object_width = args.obj_width
@@ -132,8 +133,7 @@ class Wall_Func():
 
         try:
             with open('{}materials.txt'.format('Base_'), "w") as file:
-                file.write('#material: {} 0 1 0 wall\n'.format(self.wall_permittivity))
-                # for i in range(len(self.object_permittivity)):
+                file.write('#material: {} {} 1 0 wall\n'.format(self.wall_permittivity, self.wall_conductivity))                # for i in range(len(self.object_permittivity)):
                     # file.write('#material: {} 0 1 0 Object{}\n'.format(self.object_permittivity[i],i))
             self.preprocess(self.basefile)
         except Exception as e:
@@ -241,7 +241,7 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
 
         try:
             with open('{}materials.txt'.format('Obj_'), "w") as file:
-                file.write('#material: {} 0 1 0 wall\n'.format(self.wall_permittivity))
+                file.write('#material: {} {} 1 0 wall\n'.format(self.wall_permittivity, self.wall_conductivity))
                 for i in range(len(self.object_permittivity)):
                     file.write('#material: {} 0 1 0 Object{}\n'.format(self.object_permittivity[i],i))
             self.preprocess(self.geofile)
@@ -366,15 +366,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
     data_index = 0
     for i in range(args.start, args.end - args.start):
-        i = i + data_index
+        i = i - data_index
         args.square_size = data['params'][i]['cube_size']/100
         args.wall_thickness = data['params'][i]['wall_thickness']/100
         # args.obj_width = data['params'][i]['rect_width']/100
         # args.obj_height = data['params'][i]['rect_height']/100
         args.wall_permittivity = round(data['params'][i]['permittivity_wall'], 2)
+        args.wall_conductivity = round(data['params'][i]['conductivity_wall'], 4)       
         args.object_permittivity = [round(p, 2) for p in data['params'][i]['permittivity_object']]
     # start  adaptor
-        args.i = i
+        args.i = i + data_index
         wallimg = Wall_Func(args=args)
         print(args)
         # wallimg.view_geometry()
