@@ -365,7 +365,7 @@ if __name__ == "__main__":
     data = np.load('./Geometry_3D/params_0_50.npz', allow_pickle=True)
     args = parser.parse_args()
     data_index = 0
-    for i in range(args.start, args.end - args.start):
+    for i in range(args.start, args.end):
         i = i - data_index
         args.square_size = data['params'][i]['cube_size']/100
         args.wall_thickness = data['params'][i]['wall_thickness']/100
