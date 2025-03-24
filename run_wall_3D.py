@@ -21,7 +21,7 @@ class Wall_Func():
         self.i = args.i
         self.restart = 1
         # self.num_scan = 20
-        self.num_scan = 1
+        self.num_scan = 51
 
         self.resol = 0.002
         self.time_window = 40e-9
