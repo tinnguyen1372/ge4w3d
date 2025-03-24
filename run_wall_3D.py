@@ -21,9 +21,9 @@ class Wall_Func():
         self.i = args.i
         self.restart = 1
         # self.num_scan = 20
-        self.num_scan = 50
+        self.num_scan = 1
 
-        self.resol = 0.005
+        self.resol = 0.002
         self.time_window = 40e-9
         self.square_size = args.square_size
         self.wall_thickness = args.wall_thickness
@@ -34,7 +34,7 @@ class Wall_Func():
             
         # self.object_width = args.obj_width
         # self.object_height = args.obj_height
-        self.src_to_wall = 0.10
+        self.src_to_wall = 0.05
         self.src_to_rx = 0.05
         # Geometry load
         self.base = os.getcwd() + '/Geometry_3D/Base'
@@ -43,7 +43,7 @@ class Wall_Func():
         self.geofile = self.geofolder + '/geometry_{}.h5'.format(i)
 
         # Data load
-        self.pix =int(self.square_size/0.005)
+        self.pix =int(self.square_size/0.002)
         if not os.path.exists('./Input_3D'):
             os.makedirs('./Input_3D')        
         if not os.path.exists('./Input_3D/Base'):
@@ -64,6 +64,7 @@ class Wall_Func():
             os.makedirs('./ObjImg_3D')
         if not os.path.exists('./WallObj_3D'):
             os.makedirs('./WallObj_3D')
+        print("Done")
 
   
     def view_geometry(self):
@@ -104,7 +105,7 @@ class Wall_Func():
         data = np.where(data == 1, -1, np.where(data == 0, 0, data - 1))
         # Scale the dataset to the new resolution
         # Resize geometry using interpolation
-        scale_factor = 0.01 / 0.005  # If original resolution is 1
+        scale_factor = 0.01 / 0.002 
         # print(data.shape)
         data = zoom(data, (scale_factor, scale_factor, scale_factor), order=0)
         # print(data.shape)
@@ -112,7 +113,7 @@ class Wall_Func():
         # Save the transformed data back to the file
         with h5py.File(geoname, 'w') as f:
             f.create_dataset('data', data=data)
-            f.attrs['dx_dy_dz'] = (0.005, 0.005, 0.005)
+            f.attrs['dx_dy_dz'] = (0.002, 0.002, 0.002)
             f.close()
     def run_base(self):
 
@@ -120,13 +121,13 @@ class Wall_Func():
         self.input = './Input_3D/Base{}.in'.format(self.i)
         pml_cells = 20
         pml = self.resol * pml_cells
-        src_to_pml = 0.04
+        src_to_pml = 0.01
 
         sharp_domain =  self.square_size, 1, 1
         domain_2d = [
-            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.2), 
-            float(sharp_domain[1] + 2 * pml + 0.2), 
-            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.2), 
+            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.08 + 0.1), 
+            float(sharp_domain[1] + 2 * pml + 0.08), 
+            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.08 + self.src_to_wall + 0.12), 
         ]
 
         # Preprocess geometry
@@ -139,14 +140,12 @@ class Wall_Func():
         except Exception as e:
             print(e)
 
-        src_position = [pml + src_to_pml + 0.2, 
-                        0.5 + 0.1,  
-                        pml + src_to_pml + 0.1]
-        rx_position = [pml + src_to_pml + 0.2 + self.src_to_rx, 
-                       0.5 + 0.1, 
-                       pml + src_to_pml + 0.1]        
+        src_position = [pml + src_to_pml + 0.12, 
+                        0.2 + 0.04,  
+                        pml + src_to_pml + 0.04]
         
-        src_steps = [(self.square_size-0.2)/ self.num_scan, 0, 0]
+        
+        src_steps = [(self.square_size-0.08)/ self.num_scan, 0, 0]
 #         # print(src_steps)
         config = f'''
 
@@ -154,24 +153,24 @@ class Wall_Func():
 
 Configuration
 #domain: {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f}
-#dx_dy_dz: 0.005 0.005 0.005
+#dx_dy_dz: 0.002 0.002 0.002
 #time_window: {self.time_window}
 
 #pml_cells: {pml_cells} {pml_cells} {pml_cells} {pml_cells} {pml_cells} {pml_cells}
 
 Source - Receiver - Waveform
-#waveform: ricker 1 1e9 my_wave
+#python:
+from user_libs.antennas.MALA import antenna_like_MALA_1200
+for i in range (0, {self.num_scan}):
+    antenna_like_MALA_1200({src_position[0]:.3f} + i * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.002)
+#end_python:
 
-#hertzian_dipole: y {src_position[0]:.3f} {src_position[1]:.3f} {src_position[2]:.3f} my_wave 
-#rx: {rx_position[0]:.3f} {rx_position[1]:.3f} {rx_position[2]:.3f}
-#src_steps: {src_steps[0]:.3f} 0 0
-#rx_steps: {src_steps[0]:.3f} 0 0
 
 Geometry objects read
 
-#geometry_objects_read: {pml + src_to_pml + 0.1:.3f} {pml + 0.1:.3f} {pml+ src_to_pml + 0.2:.3f} ./Input_3D/geometry_processed.h5 Base_materials.txt
+#geometry_objects_read: {pml + src_to_pml:.3f} {pml + 0.04:.3f} {pml+ src_to_pml + self.src_to_wall + 0.1:.3f} ./Input_3D/geometry_processed.h5 Base_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Base 
-geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Base n
+#geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.002 0.002 0.002 Base n
 
         '''
 
@@ -181,7 +180,7 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         try:
             api(self.input, 
                 n=self.num_scan - self.restart + 1, 
-                gpu=[0], 
+                # gpu=[0], 
                 restart=self.restart,
                 geometry_only=False, geometry_fixed=False)
         except Exception as e:
@@ -228,14 +227,15 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         self.input = './Input_3D/Object{}.in'.format(self.i)
         pml_cells = 20
         pml = self.resol * pml_cells
-        src_to_pml = 0.04
+        src_to_pml = 0.01
 
-        sharp_domain =  self.square_size, 1, 1
+        sharp_domain =  self.square_size, 0.8, 0.8
         domain_2d = [
-            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.2), 
-            float(sharp_domain[1] + 2 * pml + 0.2), 
-            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.2), 
+            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.08 + 0.1), 
+            float(sharp_domain[1] + 2 * pml + 0.08), 
+            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.08 + self.src_to_wall + 0.12), 
         ]
+
 
         # Preprocess geometrys
 
@@ -248,38 +248,35 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         except Exception as e:
             print(e)
 
-        src_position = [pml + src_to_pml + 0.2, 
-                        0.5 + 0.1,  
-                        pml + src_to_pml + 0.1]
-        rx_position = [pml + src_to_pml + 0.2 + self.src_to_rx, 
-                       0.5 + 0.1, 
-                       pml + src_to_pml + 0.1]        
-        
-        src_steps = [(self.square_size-0.2)/ self.num_scan, 0, 0]
+        src_position = [pml + src_to_pml + 0.12, 
+                        0.2 + 0.04,  
+                        pml + src_to_pml + 0.04]
+
+        src_steps = [(self.square_size-0.08)/ self.num_scan, 0, 0]
         config = f'''
 
 #title: Wall Object Imaging
 
 Configuration
 #domain: {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f}
-#dx_dy_dz: 0.005 0.005 0.005
+#dx_dy_dz: 0.002 0.002 0.002
 #time_window: {self.time_window}
 
 #pml_cells: {pml_cells} {pml_cells} {pml_cells} {pml_cells} {pml_cells} {pml_cells}
 
 Source - Receiver - Waveform
-#waveform: ricker 1 1e9 my_wave
 
-#hertzian_dipole: y {src_position[0]:.3f} {src_position[1]:.3f} {src_position[2]:.3f} my_wave 
-#rx: {rx_position[0]:.3f} {rx_position[1]:.3f} {rx_position[2]:.3f}
-#src_steps: {src_steps[0]:.3f} 0 0
-#rx_steps: {src_steps[0]:.3f} 0 0
+#python:
+from user_libs.antennas.MALA import antenna_like_MALA_1200
+for i in range (0, {self.num_scan}):
+    antenna_like_MALA_1200({src_position[0]:.3f} + i * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.002)
+#end_python:
 
 Geometry objects read
 
-#geometry_objects_read: {pml + src_to_pml + 0.1:.3f} {pml + 0.1:.3f} {pml+ src_to_pml + 0.2:.3f}  ./Input_3D/geometry_processed.h5 Obj_materials.txt
+#geometry_objects_read: {pml + src_to_pml:.3f} {pml + 0.04:.3f} {pml+ src_to_pml + self.src_to_wall + 0.1:.3f}  ./Input_3D/geometry_processed.h5 Obj_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Object 
-geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Object n
+#geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.002 0.002 0.002 Object n
 
         '''
 
@@ -289,9 +286,10 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         try:
             api(self.input, 
                 n=self.num_scan - self.restart + 1, 
-                gpu=[0], 
+                # gpu=[0], 
                 restart=self.restart,
-                geometry_only=False, geometry_fixed=False)
+                geometry_only=False, 
+                geometry_fixed=False)
         except Exception as e:
                 api(self.input, 
                 n=self.num_scan - self.restart + 1, 
@@ -362,7 +360,7 @@ if __name__ == "__main__":
     parser.add_argument('--end', type=int, default=5, help='End of the generated geometry')
     # data = np.load('SL_Obj3Dall_0_699.npz', allow_pickle=True)
     # data = np.load('SL_Obj3Dall_700_1500.npz', allow_pickle=True)
-    data = np.load('./Geometry_3D/params_0_50.npz', allow_pickle=True)
+    data = np.load('./Geometry_3D/params_0_5.npz', allow_pickle=True)
     args = parser.parse_args()
     data_index = 0
     for i in range(args.start, args.end):

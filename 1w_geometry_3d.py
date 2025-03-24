@@ -7,29 +7,55 @@ import os
 
 def create_geometry_3d(cube_size, air_size, wall_thickness):
     # Initialize the cube with walls
-    geometry = np.zeros((cube_size,100,100), dtype=int)
+    geometry = np.zeros((cube_size,40,40), dtype=int)
 
     # Set the air region
     air_start = (cube_size - air_size) // 2
     air_end = air_start + air_size
 # Set the air region inside the cube
     geometry[
-        air_start : 200,
-        air_start + wall_thickness : 100,
-        air_start : 100
+        air_start : 80,
+        air_start + wall_thickness : 40,
+        air_start : 40
     ] = 1  # Air is represented by 1
 
     return geometry, air_start, air_end
 
 import numpy as np
 import random
+def get_random_material():
+    materials = {
+        "Concrete": {"type": "Dielectric", "permittivity": 5.24, "conductivity": 0.001},
+        "Brick": {"type": "Dielectric", "permittivity": 3.91, "conductivity": 0.002},
+        "Plasterboard": {"type": "Dielectric", "permittivity": 2.73, "conductivity": 0.0005},
+        "Wood": {"type": "Dielectric", "permittivity": 1.99, "conductivity": 0.0002},
+        "Glass": {"type": "Dielectric", "permittivity": 6.31, "conductivity": 0.00001},
+        "Aluminum": {"type": "Metallic", "permittivity": 1, "conductivity": 3.77e7},
+        "Copper": {"type": "Metallic", "permittivity": 1, "conductivity": 5.8e7},
+        "Gold": {"type": "Metallic", "permittivity": 1, "conductivity": 4.1e7},
+        "Silver": {"type": "Metallic", "permittivity": 1, "conductivity": 6.3e7},
+        "Iron": {"type": "Metallic", "permittivity": 1, "conductivity": 1e7},
+        "Dry Soil": {"type": "Nonmetallic", "permittivity": 4.0, "conductivity": 0.001},
+        "Ice": {"type": "Nonmetallic", "permittivity": 3.2, "conductivity": 0.00001},
+    }
+    
+    variance_factor = 0.15
+    material = random.choice(list(materials.keys()))
 
-def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness, cube_size=200):
-    permittivity_object = random.uniform(4, 40.0)
-    size_w = random.randint(20, 40)
-    size_h = random.randint(20, 40)
-    size_d = random.randint(20, 40)  # Depth for rectangular shapes
-    objwall_gap = 10  # Gap between object and wall
+    if materials[material]["type"] == "Metallic":
+        permittivity = materials[material]["permittivity"]
+    else:
+        permittivity = materials[material]["permittivity"] * random.uniform(1 - variance_factor, 1 + variance_factor)
+    conductivity = materials[material]["conductivity"] * random.uniform(1 - variance_factor, 1 + variance_factor)
+    return material, materials[material]["type"], round(permittivity, 3), round(conductivity, 6)
+
+    
+def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness, cube_size=80):
+    obj_mat,obj_type,permittivity_object, conductivity_object = get_random_material()
+    size_w = random.randint(8, 16)
+    size_h = random.randint(8, 16)
+    size_d = random.randint(8, 16)  # Depth for rectangular shapes
+    objwall_gap = 4  # Gap between object and wall
 
     # Get geometry shape limits
     x_max, y_max, z_max = geometry.shape
@@ -40,7 +66,7 @@ def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness, cube_si
     # Adjust start positions to be closer to the center while avoiding out-of-bounds errors
     y_start = random.randint(
         wall_thickness + objwall_gap + size_w // 2,
-        wall_thickness + objwall_gap - size_w //2 + y_max//2 - 5,
+        wall_thickness + objwall_gap - size_w //2 + y_max//2 - 2,
     )
     
     x_start = random.randint(air_start + objwall_gap + size_w//2 + x_max//4, 3*x_max//4 - objwall_gap - size_w//2)
@@ -87,7 +113,7 @@ def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness, cube_si
 
         geometry[x_start:x_end, y_start_adj:y_end, center_z:z_end] = int(i) + 2
 
-    return permittivity_object, shape, geometry
+    return obj_mat,obj_type,permittivity_object, conductivity_object, shape, geometry
 
 # def visualize_top_view(geometry, wall_color, air_color, f_color, s_color, t_color):
 def visualize_top_view(geometry, **kwargs):
@@ -207,8 +233,8 @@ if __name__ == '__main__':
         os.makedirs('./Geometry_3D/Base')
 
     for i in range(args.n):
-        cube_size = 200
-        wall_thickness = random.randint(15, 30)
+        cube_size = 80
+        wall_thickness = random.randint(4, 9)
 
         # Define wall materials with permittivity and conductivity
         wall_materials = {
@@ -253,11 +279,15 @@ if __name__ == '__main__':
         )
         per_obj_arr = []
         shape_arr = []
+        con_arr = []
+        mat_arr = []
         num_objects = random.randint(1, 1)
         for j in range(num_objects):
-            per_obj, shape, geometry = add_random_shape_3d(j, geometry, air_start, air_end, wall_thickness)
+            obj_mat,obj_type,per_obj, con_obj, shape, geometry = add_random_shape_3d(j, geometry, air_start, air_end, wall_thickness)
             per_obj_arr.append(per_obj)
             shape_arr.append(shape)
+            con_arr.append(con_obj)
+            mat_arr.append(obj_type)
 
 
         save_top_view(
@@ -294,7 +324,9 @@ if __name__ == '__main__':
             wall_color=wall_color,
             air_color=air_color,
             object_color=[f_color, s_color, t_color],
-            permittivity_object=per_obj_arr,            
+            conductivity_object = con_arr,
+            permittivity_object=per_obj_arr,   
+            material = mat_arr,         
             permittivity_wall=permittivity_wall,
             conductivity_wall=conductivity,
         )
