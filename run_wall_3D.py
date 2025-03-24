@@ -170,7 +170,7 @@ Geometry objects read
 
 #geometry_objects_read: {pml + src_to_pml:.3f} {pml + 0.04:.3f} {pml+ src_to_pml + self.src_to_wall + 0.1:.3f} ./Input_3D/geometry_processed.h5 Base_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Base 
-#geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.002 0.002 0.002 Base n
+geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.002 0.002 0.002 Base n
 
         '''
 
@@ -276,7 +276,7 @@ Geometry objects read
 
 #geometry_objects_read: {pml + src_to_pml:.3f} {pml + 0.04:.3f} {pml+ src_to_pml + self.src_to_wall + 0.1:.3f}  ./Input_3D/geometry_processed.h5 Obj_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Object 
-#geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.002 0.002 0.002 Object n
+geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.002 0.002 0.002 Object n
 
         '''
 
