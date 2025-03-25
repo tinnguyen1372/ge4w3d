@@ -179,7 +179,7 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         try:
             api(self.input, 
                 n=self.num_scan - self.restart + 1, 
-                # gpu=[0], 
+                gpu=[0], 
                 restart=self.restart,
                 geometry_only=False, geometry_fixed=False)
         except Exception as e:
@@ -284,7 +284,7 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         try:
             api(self.input, 
                 n=self.num_scan - self.restart + 1, 
-                # gpu=[0], 
+                gpu=[0], 
                 restart=self.restart,
                 geometry_only=False, 
                 geometry_fixed=False)
