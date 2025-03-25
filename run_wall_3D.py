@@ -160,10 +160,8 @@ Configuration
 
 Source - Receiver - Waveform
 #python:
-for i in range (0, {self.num_scan}):
-    if i == 0:
-        from user_libs.antennas.MALA import antenna_like_MALA_1200
-    antenna_like_MALA_1200({src_position[0]:.3f} + i * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.002)
+from user_libs.antennas.MALA import antenna_like_MALA_1200
+antenna_like_MALA_1200({src_position[0]:.3f} + current_model_run * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.002)
 #end_python:
 
 
@@ -268,10 +266,8 @@ Configuration
 Source - Receiver - Waveform
 
 #python:
-for i in range (0, {self.num_scan}):
-    if i == 0:
-        from user_libs.antennas.MALA import antenna_like_MALA_1200
-    antenna_like_MALA_1200({src_position[0]:.3f} + i * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.002)
+from user_libs.antennas.MALA import antenna_like_MALA_1200
+antenna_like_MALA_1200({src_position[0]:.3f} + current_model_run * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.002)
 #end_python:
 
 Geometry objects read
