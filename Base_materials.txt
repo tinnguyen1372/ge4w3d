@@ -1,1 +1,1 @@
-#material: 1.82 0.0002 1 0 wall
+#material: 5.79 0.0 1 0 wall

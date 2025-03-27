@@ -40,7 +40,6 @@ def antenna_like_MALA_1200(x, y, z, resolution=0.005, rotate90=False):
     
     dx = dy = dz = 0.005
     tx = x + 0.062, y + 0.052, z + skidthickness
-    print('tx: {}'.format(tx))
     # SMD resistors - 3 on each Tx & Rx bowtie arm
     txres = 470  # Ohms
     txrescellupper = txres / 3  # Resistor over 3 cells
@@ -52,7 +51,6 @@ def antenna_like_MALA_1200(x, y, z, resolution=0.005, rotate90=False):
     rxsigupper = ((1 / rxrescellupper) * (dy / (dx * dz))) / 2  # Divide by number of parallel edges per resistor
     rxrescelllower = rxres / 4  # Resistor over 4 cells
     rxsiglower = ((1 / rxrescelllower) * (dy / (dx * dz))) / 2  # Divide by number of parallel edges per resistor
-    print('txsigupper: {}, txsiglower: {}, rxsigupper: {}, rxsiglower: {}'.format(txsigupper, txsiglower, rxsigupper, rxsiglower))
     # Material definitions
     material(absorberEr, absorbersig, 1, 0, 'absorber')
     material(3, 0, 1, 0, 'pcb')
@@ -135,11 +133,11 @@ def antenna_like_MALA_1200(x, y, z, resolution=0.005, rotate90=False):
     edge(tx[0] + 0.014 + dx + 0.076, tx[1] + bowtieheight + 0.002, tx[2], tx[0] + 0.014 + dx + 0.076, tx[1] + bowtieheight + 0.006, tx[2], 'rxresupper', rotate90origin=rotate90origin)
 
 # Fixed versions - dimensions increased to match resolution grid
-    box(x + 0.052, y + casesize[1] - 0.017, z + skidthickness,x + 0.056,  y + casesize[1] - 0.014,z + skidthickness + casesize[2] - casethickness, 'free_space', rotate90origin=rotate90origin)
-    box(x + 0.052, y + 0.012, z + skidthickness,x + 0.056, y + 0.016, z + skidthickness + casesize[2] - casethickness, 'free_space', rotate90origin=rotate90origin)
+    box(x + 0.05, y + casesize[1] - 0.017, z + skidthickness,x + 0.056,  y + casesize[1] - 0.014,z + skidthickness + casesize[2] - casethickness, 'free_space', rotate90origin=rotate90origin)
+    box(x + 0.05, y + 0.012, z + skidthickness,x + 0.056, y + 0.016, z + skidthickness + casesize[2] - casethickness, 'free_space', rotate90origin=rotate90origin)
 
-    box(x + 0.144, y + casesize[1] - 0.017, z + skidthickness,x + 0.148, y + casesize[1] - 0.014,z + skidthickness + casesize[2] - casethickness,'free_space', rotate90origin=rotate90origin)
-    box(x + 0.144, y + 0.012, z + skidthickness,x + 0.148, y + 0.016,z + skidthickness + casesize[2] - casethickness,'free_space', rotate90origin=rotate90origin)
+    box(x + 0.142, y + casesize[1] - 0.017, z + skidthickness,x + 0.148, y + casesize[1] - 0.014,z + skidthickness + casesize[2] - casethickness,'free_space', rotate90origin=rotate90origin)
+    box(x + 0.142, y + 0.012, z + skidthickness,x + 0.148, y + 0.016,z + skidthickness + casesize[2] - casethickness,'free_space', rotate90origin=rotate90origin)
 
     # Skid
     box(x, y, z, x + casesize[0], y + casesize[1], z + polypropylenethickness, 'polypropylene', rotate90origin=rotate90origin)

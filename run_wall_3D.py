@@ -19,7 +19,7 @@ class Wall_Func():
     def __init__(self, args) -> None:
         self.args = args
         self.i = args.i
-        self.restart = 1
+        self.restart = 50
         # self.num_scan = 20
         self.num_scan = 51
 
