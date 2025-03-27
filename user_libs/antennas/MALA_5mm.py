@@ -135,8 +135,8 @@ def antenna_like_MALA_1200(x, y, z, resolution=0.005, rotate90=False):
     edge(tx[0] + 0.014 + dx + 0.076, tx[1] + bowtieheight + 0.002, tx[2], tx[0] + 0.014 + dx + 0.076, tx[1] + bowtieheight + 0.006, tx[2], 'rxresupper', rotate90origin=rotate90origin)
 
 # Fixed versions - dimensions increased to match resolution grid
-    box(x + 0.053, y + casesize[1] - 0.017, z + skidthickness,x + 0.056,  y + casesize[1] - 0.014,z + skidthickness + casesize[2] - casethickness, 'free_space', rotate90origin=rotate90origin)
-    box(x + 0.053, y + 0.012, z + skidthickness,x + 0.056, y + 0.016, z + skidthickness + casesize[2] - casethickness, 'free_space', rotate90origin=rotate90origin)
+    box(x + 0.052, y + casesize[1] - 0.017, z + skidthickness,x + 0.056,  y + casesize[1] - 0.014,z + skidthickness + casesize[2] - casethickness, 'free_space', rotate90origin=rotate90origin)
+    box(x + 0.052, y + 0.012, z + skidthickness,x + 0.056, y + 0.016, z + skidthickness + casesize[2] - casethickness, 'free_space', rotate90origin=rotate90origin)
 
     box(x + 0.144, y + casesize[1] - 0.017, z + skidthickness,x + 0.148, y + casesize[1] - 0.014,z + skidthickness + casesize[2] - casethickness,'free_space', rotate90origin=rotate90origin)
     box(x + 0.144, y + 0.012, z + skidthickness,x + 0.148, y + 0.016,z + skidthickness + casesize[2] - casethickness,'free_space', rotate90origin=rotate90origin)
