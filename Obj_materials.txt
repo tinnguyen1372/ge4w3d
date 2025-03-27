@@ -1,2 +1,2 @@
-#material: 2.11 0 1 0 wall
-#material: 16.28 0 1 0 Object0
+#material: 1.82 0.0002 1 0 wall
+#material: 3.94 0 1 0 Object0

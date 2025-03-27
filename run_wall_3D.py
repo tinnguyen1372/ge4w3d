@@ -23,7 +23,7 @@ class Wall_Func():
         # self.num_scan = 20
         self.num_scan = 51
 
-        self.resol = 0.002
+        self.resol = 0.005
         self.time_window = 40e-9
         self.square_size = args.square_size
         self.wall_thickness = args.wall_thickness
@@ -34,7 +34,7 @@ class Wall_Func():
             
         # self.object_width = args.obj_width
         # self.object_height = args.obj_height
-        self.src_to_wall = 0.05
+        self.src_to_wall = 0.1
         self.src_to_rx = 0.05
         # Geometry load
         self.base = os.getcwd() + '/Geometry_3D/Base'
@@ -43,7 +43,7 @@ class Wall_Func():
         self.geofile = self.geofolder + '/geometry_{}.h5'.format(i)
 
         # Data load
-        self.pix =int(self.square_size/0.002)
+        self.pix =int(self.square_size/0.005)
         if not os.path.exists('./Input_3D'):
             os.makedirs('./Input_3D')        
         if not os.path.exists('./Input_3D/Base'):
@@ -105,7 +105,7 @@ class Wall_Func():
         data = np.where(data == 1, -1, np.where(data == 0, 0, data - 1))
         # Scale the dataset to the new resolution
         # Resize geometry using interpolation
-        scale_factor = 0.01 / 0.002 
+        scale_factor = 0.01 / 0.005 
         # print(data.shape)
         data = zoom(data, (scale_factor, scale_factor, scale_factor), order=0)
         # print(data.shape)
@@ -113,7 +113,7 @@ class Wall_Func():
         # Save the transformed data back to the file
         with h5py.File(geoname, 'w') as f:
             f.create_dataset('data', data=data)
-            f.attrs['dx_dy_dz'] = (0.002, 0.002, 0.002)
+            f.attrs['dx_dy_dz'] = (0.005, 0.005, 0.005)
             f.close()
     def run_base(self):
 
@@ -121,31 +121,26 @@ class Wall_Func():
         self.input = './Input_3D/Base{}.in'.format(self.i)
         pml_cells = 20
         pml = self.resol * pml_cells
-        src_to_pml = 0.01
-
+        src_to_pml = 0.02
         sharp_domain =  self.square_size, 1, 1
         domain_2d = [
-            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.08 + 0.1), 
-            float(sharp_domain[1] + 2 * pml + 0.08), 
-            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.08 + self.src_to_wall + 0.12), 
+            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.2), 
+            float(sharp_domain[1] + 2 * pml + 0.2), 
+            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.2 + self.src_to_wall), 
         ]
 
         # Preprocess geometry
+        with open('{}materials.txt'.format('Base_'), "w") as file:
+            file.write('#material: {} {} 1 0 wall\n'.format(self.wall_permittivity, self.wall_conductivity))                # for i in range(len(self.object_permittivity)):
+                # file.write('#material: {} 0 1 0 Object{}\n'.format(self.object_permittivity[i],i))
+        self.preprocess(self.basefile)
 
-        try:
-            with open('{}materials.txt'.format('Base_'), "w") as file:
-                file.write('#material: {} {} 1 0 wall\n'.format(self.wall_permittivity, self.wall_conductivity))                # for i in range(len(self.object_permittivity)):
-                    # file.write('#material: {} 0 1 0 Object{}\n'.format(self.object_permittivity[i],i))
-            self.preprocess(self.basefile)
-        except Exception as e:
-            print(e)
+ 
+        src_position = [pml + src_to_pml + 0.5, 
+                        pml + 0.5 + 0.1,  
+                        pml + src_to_pml + 0.1]
 
-        src_position = [pml + src_to_pml + 0.12, 
-                        0.2 + 0.04,  
-                        pml + src_to_pml + 0.04]
-        
-        
-        src_steps = [(self.square_size-0.08)/ self.num_scan, 0, 0]
+        src_steps = [(self.square_size/2+0.2)/ (self.num_scan-1), 0, 0]
 #         # print(src_steps)
         config = f'''
 
@@ -153,23 +148,23 @@ class Wall_Func():
 
 Configuration
 #domain: {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f}
-#dx_dy_dz: 0.002 0.002 0.002
+#dx_dy_dz: 0.005 0.005 0.005
 #time_window: {self.time_window}
 
 #pml_cells: {pml_cells} {pml_cells} {pml_cells} {pml_cells} {pml_cells} {pml_cells}
 
 Source - Receiver - Waveform
 #python:
-from user_libs.antennas.MALA import antenna_like_MALA_1200
-antenna_like_MALA_1200({src_position[0]:.3f} + current_model_run * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.002)
+from user_libs.antennas.MALA_5mm import antenna_like_MALA_1200
+antenna_like_MALA_1200({src_position[0]:.3f} + (current_model_run-1) * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.005)
 #end_python:
 
 
 Geometry objects read
 
-#geometry_objects_read: {pml + src_to_pml:.3f} {pml + 0.04:.3f} {pml+ src_to_pml + self.src_to_wall + 0.1:.3f} ./Input_3D/geometry_processed.h5 Base_materials.txt
+#geometry_objects_read: {pml + src_to_pml:.3f} {pml + 0.1:.3f} {pml+ src_to_pml + self.src_to_wall + 0.1:.3f} ./Input_3D/geometry_processed.h5 Base_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Base 
-geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.002 0.002 0.002 Base n
+geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Base n
 
         '''
 
@@ -226,13 +221,13 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         self.input = './Input_3D/Object{}.in'.format(self.i)
         pml_cells = 20
         pml = self.resol * pml_cells
-        src_to_pml = 0.01
+        src_to_pml = 0.02
 
-        sharp_domain =  self.square_size, 0.8, 0.8
+        sharp_domain =  self.square_size, 1, 1
         domain_2d = [
-            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.08 + 0.1), 
-            float(sharp_domain[1] + 2 * pml + 0.08), 
-            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.08 + self.src_to_wall + 0.12), 
+            float(sharp_domain[0] + 2 * pml + src_to_pml + 0.2), 
+            float(sharp_domain[1] + 2 * pml + 0.2), 
+            float(sharp_domain[2] + 2 * pml + src_to_pml + 0.2 + self.src_to_wall), 
         ]
 
 
@@ -247,18 +242,19 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
         except Exception as e:
             print(e)
 
-        src_position = [pml + src_to_pml + 0.12, 
-                        0.2 + 0.04,  
-                        pml + src_to_pml + 0.04]
+ 
+        src_position = [pml + src_to_pml + 0.5, 
+                        pml + 0.5 + 0.1,  
+                        pml + src_to_pml + 0.1]
 
-        src_steps = [(self.square_size-0.08)/ self.num_scan, 0, 0]
+        src_steps = [(self.square_size/2+0.2)/ (self.num_scan-1), 0, 0]
         config = f'''
 
 #title: Wall Object Imaging
 
 Configuration
 #domain: {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f}
-#dx_dy_dz: 0.002 0.002 0.002
+#dx_dy_dz: 0.005 0.005 0.005
 #time_window: {self.time_window}
 
 #pml_cells: {pml_cells} {pml_cells} {pml_cells} {pml_cells} {pml_cells} {pml_cells}
@@ -266,15 +262,13 @@ Configuration
 Source - Receiver - Waveform
 
 #python:
-from user_libs.antennas.MALA import antenna_like_MALA_1200
-antenna_like_MALA_1200({src_position[0]:.3f} + current_model_run * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.002)
+from user_libs.antennas.MALA_5mm import antenna_like_MALA_1200
+antenna_like_MALA_1200({src_position[0]:.3f} + (current_model_run-1) * {src_steps[0]:.3f}, {src_position[1]:.3f}, {src_position[2]:.3f}, 0.005)
 #end_python:
 
-Geometry objects read
-
-#geometry_objects_read: {pml + src_to_pml:.3f} {pml + 0.04:.3f} {pml+ src_to_pml + self.src_to_wall + 0.1:.3f}  ./Input_3D/geometry_processed.h5 Obj_materials.txt
 geometry_objects_write: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} Object 
-geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.002 0.002 0.002 Object n
+#geometry_objects_read: {pml + src_to_pml:.3f} {pml + 0.1:.3f} {pml+ src_to_pml + self.src_to_wall + 0.1:.3f}  ./Input_3D/geometry_processed.h5 Obj_materials.txt
+geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.005 0.005 0.005 Object n
 
         '''
 

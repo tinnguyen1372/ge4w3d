@@ -51,12 +51,17 @@ def antenna_like_MALA_1200(x, y, z, resolution=0.001, rotate90=False):
     y = y - (casesize[1] / 2)
 
     # Coordinates of source excitation point in antenna
-    tx = x + 0.063, y + 0.052, z + skidthickness
 
     if resolution == 0.001:
         dx = 0.001
         dy = 0.001
         dz = 0.001
+        cavitysize = (0.062, 0.062, 0.037)
+        cavitythickness = 0.001
+        polypropylenethickness = 0.003
+        hdpethickness = 0.003
+        bowtieheight = 0.025
+        tx = x + 0.063, y + 0.052, z + skidthickness
     elif resolution == 0.002:
         dx = 0.002
         dy = 0.002

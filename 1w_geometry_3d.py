@@ -7,16 +7,16 @@ import os
 
 def create_geometry_3d(cube_size, air_size, wall_thickness):
     # Initialize the cube with walls
-    geometry = np.zeros((cube_size,40,40), dtype=int)
+    geometry = np.zeros((cube_size,100,100), dtype=int)
 
     # Set the air region
     air_start = (cube_size - air_size) // 2
     air_end = air_start + air_size
 # Set the air region inside the cube
     geometry[
-        air_start : 80,
-        air_start + wall_thickness : 40,
-        air_start : 40
+        air_start : 200,
+        air_start + wall_thickness : 100,
+        air_start : 100
     ] = 1  # Air is represented by 1
 
     return geometry, air_start, air_end
@@ -50,12 +50,12 @@ def get_random_material():
     return material, materials[material]["type"], round(permittivity, 3), round(conductivity, 6)
 
     
-def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness, cube_size=80):
+def add_random_shape_3d(i, geometry, air_start, air_end, wall_thickness, cube_size=200):
     obj_mat,obj_type,permittivity_object, conductivity_object = get_random_material()
-    size_w = random.randint(8, 16)
-    size_h = random.randint(8, 16)
-    size_d = random.randint(8, 16)  # Depth for rectangular shapes
-    objwall_gap = 4  # Gap between object and wall
+    size_w = random.randint(15, 40)
+    size_h = random.randint(15, 40)
+    size_d = random.randint(15, 40)  # Depth for rectangular shapes
+    objwall_gap = 10  # Gap between object and wall
 
     # Get geometry shape limits
     x_max, y_max, z_max = geometry.shape
@@ -233,8 +233,8 @@ if __name__ == '__main__':
         os.makedirs('./Geometry_3D/Base')
 
     for i in range(args.n):
-        cube_size = 80
-        wall_thickness = random.randint(4, 9)
+        cube_size = 200
+        wall_thickness = random.randint(10, 20)
 
         # Define wall materials with permittivity and conductivity
         wall_materials = {
