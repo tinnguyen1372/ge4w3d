@@ -19,12 +19,12 @@ class Wall_Func():
     def __init__(self, args) -> None:
         self.args = args
         self.i = args.i
-        self.restart = 50
+        self.restart = 1
         # self.num_scan = 20
-        self.num_scan = 51
+        self.num_scan = 40
 
         self.resol = 0.005
-        self.time_window = 40e-9
+        self.time_window = 30e-9
         self.square_size = args.square_size
         self.wall_thickness = args.wall_thickness
         # self.wall_height = args.wall_height
