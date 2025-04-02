@@ -309,7 +309,9 @@ if __name__ == '__main__':
             wall_color=wall_color,
             air_color=air_color,
             object_color=[f_color, s_color, t_color],
-            permittivity_object=per_obj_arr,
+            conductivity_object = con_arr,
+            permittivity_object=per_obj_arr,   
+            material = mat_arr,         
             permittivity_wall=permittivity_wall,
             conductivity_wall=conductivity,
         )

@@ -31,16 +31,16 @@ class Wall_Func():
         self.wall_permittivity = args.wall_permittivity
         self.wall_conductivity = args.wall_conductivity
         self.object_permittivity = args.object_permittivity
-            
+        self.object_conductivity = args.object_conductivity            
         # self.object_width = args.obj_width
         # self.object_height = args.obj_height
         self.src_to_wall = 0.1
         self.src_to_rx = 0.05
         # Geometry load
         self.base = os.getcwd() + '/Geometry_3D/Base'
-        self.basefile = self.base + '/base_{}.h5'.format(i)
+        self.basefile = self.base + '/base_{}.h5'.format(self.i)
         self.geofolder = os.getcwd() + '/Geometry_3D/Object'
-        self.geofile = self.geofolder + '/geometry_{}.h5'.format(i)
+        self.geofile = self.geofolder + '/geometry_{}.h5'.format(self.i)
 
         # Data load
         self.pix =int(self.square_size/0.005)
@@ -233,14 +233,11 @@ geometry_view: 0 0 0 {domain_2d[0]:.3f} {domain_2d[1]:.3f} {domain_2d[2]:.3f} 0.
 
         # Preprocess geometrys
 
-        try:
-            with open('{}materials.txt'.format('Obj_'), "w") as file:
-                file.write('#material: {} {} 1 0 wall\n'.format(self.wall_permittivity, self.wall_conductivity))
-                for i in range(len(self.object_permittivity)):
-                    file.write('#material: {} 0 1 0 Object{}\n'.format(self.object_permittivity[i],i))
+        with open('{}materials.txt'.format('Obj_'), "w") as file:
+            file.write('#material: {} {} 1 0 wall\n'.format(self.wall_permittivity, self.wall_conductivity))
+            for i in range(len(self.object_permittivity)):
+                file.write('#material: {} {} 1 0 Object{}\n'.format(self.object_permittivity[i],self.object_conductivity[i],i))          
             self.preprocess(self.geofile)
-        except Exception as e:
-            print(e)
 
  
         src_position = [pml + src_to_pml + 0.5, 
@@ -352,9 +349,9 @@ if __name__ == "__main__":
     parser.add_argument('--end', type=int, default=5, help='End of the generated geometry')
     # data = np.load('SL_Obj3Dall_0_699.npz', allow_pickle=True)
     # data = np.load('SL_Obj3Dall_700_1500.npz', allow_pickle=True)
-    data = np.load('./Geometry_3D/params_0_4999.npz', allow_pickle=True)
+    data = np.load('./Geometry_3D/params_160_4999.npz', allow_pickle=True)
     args = parser.parse_args()
-    data_index = 0
+    data_index = 160
     for i in range(args.start, args.end):
         i = i - data_index
         args.square_size = data['params'][i]['cube_size']/100
@@ -364,6 +361,7 @@ if __name__ == "__main__":
         args.wall_permittivity = round(data['params'][i]['permittivity_wall'], 2)
         args.wall_conductivity = round(data['params'][i]['conductivity_wall'], 4)       
         args.object_permittivity = [round(p, 2) for p in data['params'][i]['permittivity_object']]
+        args.object_conductivity = [round(p, 6) for p in data['params'][i]['conductivity_object']]
     # start  adaptor
         args.i = i + data_index
         wallimg = Wall_Func(args=args)
