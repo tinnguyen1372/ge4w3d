@@ -30,7 +30,8 @@ def antenna_like_MALA_1200(x, y, z, resolution=0.005, rotate90=False):
     else:
         rotate90origin = ()
         output = 'Ey'  
-    excitationfreq = 0.978e9
+    # excitationfreq = 0.978e9
+    excitationfreq = 4e9
     sourceresistance = 1000
     absorberEr = 6.49
     absorbersig = 0.252
