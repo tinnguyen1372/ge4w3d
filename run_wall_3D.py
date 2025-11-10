@@ -349,9 +349,9 @@ if __name__ == "__main__":
     parser.add_argument('--end', type=int, default=5, help='End of the generated geometry')
     # data = np.load('SL_Obj3Dall_0_699.npz', allow_pickle=True)
     # data = np.load('SL_Obj3Dall_700_1500.npz', allow_pickle=True)
-    data = np.load('./Geometry_3D/params_160_4999.npz', allow_pickle=True)
+    data = np.load('./Geometry_3D/params_0_2000.npz', allow_pickle=True)
     args = parser.parse_args()
-    data_index = 160
+    data_index = 0
     for i in range(args.start, args.end):
         i = i - data_index
         args.square_size = data['params'][i]['cube_size']/100
