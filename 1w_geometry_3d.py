@@ -25,18 +25,18 @@ import numpy as np
 import random
 def get_random_material():
     materials = {
-        "Concrete": {"type": "Dielectric", "permittivity": 5.24, "conductivity": 0.001},
-        "Brick": {"type": "Dielectric", "permittivity": 3.91, "conductivity": 0.002},
-        "Plasterboard": {"type": "Dielectric", "permittivity": 2.73, "conductivity": 0.0005},
-        "Wood": {"type": "Dielectric", "permittivity": 1.99, "conductivity": 0.0002},
-        "Glass": {"type": "Dielectric", "permittivity": 6.31, "conductivity": 0.00001},
+        # "Concrete": {"type": "Dielectric", "permittivity": 5.24, "conductivity": 0.001},
+        # "Brick": {"type": "Dielectric", "permittivity": 3.91, "conductivity": 0.002},
+        # "Plasterboard": {"type": "Dielectric", "permittivity": 2.73, "conductivity": 0.0005},
+        # "Wood": {"type": "Dielectric", "permittivity": 1.99, "conductivity": 0.0002},
+        # "Glass": {"type": "Dielectric", "permittivity": 6.31, "conductivity": 0.00001},
         "Aluminum": {"type": "Metallic", "permittivity": 1, "conductivity": 3.77e7},
         "Copper": {"type": "Metallic", "permittivity": 1, "conductivity": 5.8e7},
-        "Gold": {"type": "Metallic", "permittivity": 1, "conductivity": 4.1e7},
+        # "Gold": {"type": "Metallic", "permittivity": 1, "conductivity": 4.1e7},
         "Silver": {"type": "Metallic", "permittivity": 1, "conductivity": 6.3e7},
         "Iron": {"type": "Metallic", "permittivity": 1, "conductivity": 1e7},
-        "Dry Soil": {"type": "Nonmetallic", "permittivity": 4.0, "conductivity": 0.001},
-        "Ice": {"type": "Nonmetallic", "permittivity": 3.2, "conductivity": 0.00001},
+        # "Dry Soil": {"type": "Nonmetallic", "permittivity": 4.0, "conductivity": 0.001},
+        # "Ice": {"type": "Nonmetallic", "permittivity": 3.2, "conductivity": 0.00001},
     }
     
     variance_factor = 0.15
@@ -281,7 +281,7 @@ if __name__ == '__main__':
         shape_arr = []
         con_arr = []
         mat_arr = []
-        num_objects = random.randint(1, 1)
+        num_objects = random.randint(1, 2)
         for j in range(num_objects):
             obj_mat,obj_type,per_obj, con_obj, shape, geometry = add_random_shape_3d(j, geometry, air_start, air_end, wall_thickness)
             per_obj_arr.append(per_obj)
